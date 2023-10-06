@@ -17,38 +17,41 @@ export default function App() {
       hasArrow: true,
       showBadge: true,
     });
-    logSuccess('This is a success message');
-    logSuccess('This is a success message with a object', {
-      message: 'This is a success message with a object',
-      name: 'Debulog',
-    });
+    // logSuccess('This is a success message');
+    // logSuccess(' [endpoint] This is a success message');
+    logSuccess('This is a success message [ arrow ] assa');
+    //
+    // logSuccess('This is a success message with a object', {
+    //   message: 'This is a success message with a object',
+    //   name: 'Debulog',
+    // });
 
-    logError('This is an error message');
-    logError('This is an error message with a object', {
-      name: 'Debulog',
-      version: '1.0.0',
-    });
-    logWarning('This is a warning message');
-    logWarning('This is a warning message with a object', {
-      name: 'Debulog',
-      version: '1.0.0',
-    });
-    logInfo('This is an info message');
-    logInfo('This is an info message with a object', {
-      name: 'Debulog',
-      version: '1.0.0',
-      author: 'Gustavo Bacellar',
-    });
-    logDebug('This is a debug message');
-    logDebug('This is a debug message with a object', {
-      name: 'Debulog',
-      version: '1.0.0',
-    });
-    log('This is a default message');
-    log('This is a default message with a object', {
-      name: 'Debulog',
-      version: '1.0.0',
-    });
+    // logError('This is an error message');
+    // logError('This is an error message with a object', {
+    //   name: 'Debulog',
+    //   version: '1.0.0',
+    // });
+    // logWarning('This is a warning message');
+    // logWarning('This is a warning message with a object', {
+    //   name: 'Debulog',
+    //   version: '1.0.0',
+    // });
+    // logInfo('This is an info message');
+    // logInfo('This is an info message with a object', {
+    //   name: 'Debulog',
+    //   version: '1.0.0',
+    //   author: 'Gustavo Bacellar',
+    // });
+    // logDebug('This is a debug message');
+    // logDebug('This is a debug message with a object', {
+    //   name: 'Debulog',
+    //   version: '1.0.0',
+    // });
+    // log('This is a default message');
+    // log('This is a default message with a object', {
+    //   name: 'Debulog',
+    //   version: '1.0.0',
+    // });
   }, []);
 
   return <View style={styles.container} />;

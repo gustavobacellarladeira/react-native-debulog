@@ -2,6 +2,7 @@ export interface DebulogOptions {
   hideLogs?: boolean;
   showBadge?: boolean;
   hasArrow?: boolean;
+  hasHighligh?: boolean;
   hasJsonStringify?: boolean;
   stringifySpaces?: number;
 }
@@ -9,6 +10,7 @@ export interface DebulogOptions {
 const defaultOptions: DebulogOptions = {
   hideLogs: false,
   showBadge: false,
+  hasHighligh: true,
   hasArrow: true,
   hasJsonStringify: true,
   stringifySpaces: 2,
@@ -17,6 +19,7 @@ const defaultOptions: DebulogOptions = {
 let currentOptions: DebulogOptions = {
   hideLogs: false,
   showBadge: false,
+  hasHighligh: true,
   hasArrow: true,
   hasJsonStringify: true,
   stringifySpaces: 2,
@@ -64,22 +67,52 @@ const handlerShowHighligh = (
     | 'white'
     | 'none' = 'none'
 ) => {
+  if (currentOptions.hasHighligh === true) {
+    switch (type) {
+      case 'success':
+        return '\x1b[38;5;82m[ SUCCESS ] \x1b[0m';
+      case 'error':
+        return '\x1b[38;5;196m[ ERROR ] \x1b[0m';
+      case 'warning':
+        return '\x1b[38;5;226m[ WARNING ] \x1b[0m';
+      case 'info':
+        return '\x1b[38;5;33m[ INFO ] \x1b[0m';
+      case 'debug':
+        return '\x1b[38;5;201m[ DEBUG ] \x1b[0m';
+      case 'white':
+        return '\x1b[38;5;15m[ LOG ] \x1b[0m';
+      default:
+    }
+  }
+  return '';
+};
+
+const handlerShowArrow = (
+  type:
+    | 'success'
+    | 'error'
+    | 'warning'
+    | 'info'
+    | 'debug'
+    | 'white'
+    | 'none' = 'none'
+) => {
   if (currentOptions.hasArrow === true) {
     const arrow = currentOptions.hasArrow ? handlerColorArrow(type) : '';
 
     switch (type) {
       case 'success':
-        return '\x1b[38;5;82m[ SUCCESS ] \x1b[0m' + arrow + ' ';
+        return arrow + ' ';
       case 'error':
-        return '\x1b[38;5;196m[ ERROR ] \x1b[0m' + arrow + ' ';
+        return arrow + ' ';
       case 'warning':
-        return '\x1b[38;5;226m[ WARNING ] \x1b[0m' + arrow + ' ';
+        return arrow + ' ';
       case 'info':
-        return '\x1b[38;5;33m[ INFO ] \x1b[0m' + arrow + ' ';
+        return arrow + ' ';
       case 'debug':
-        return '\x1b[38;5;201m[ DEBUG ] \x1b[0m' + arrow + ' ';
+        return arrow + ' ';
       case 'white':
-        return '\x1b[38;5;15m[ LOG ] \x1b[0m' + arrow + ' ';
+        return arrow + ' ';
       default:
     }
   }
@@ -127,113 +160,290 @@ const handlerJsonStringify = (message: string) => {
 };
 
 export const logSuccess = (message: string, somethingElse?: any) => {
+  const logType = 'success';
+
   if (currentOptions.hideLogs === true) {
     return;
   }
-  const badge = handlerShowBadge('success');
-  const highligh = handlerShowHighligh('success');
+  const arrow = handlerShowArrow(logType);
+  const badge = handlerShowBadge(logType);
+  const highligh = handlerShowHighligh(logType);
+
+  let mesageWithParams = highligh;
+  const regex = /\[.*?\]/g;
+  const match = message.match(regex);
+
+  if (match !== null && match.length > 0) {
+    const matchString = match[0];
+
+    if (matchString.indexOf(message) === 0) {
+      const matchStringWithoutBrackets = matchString.replace(/\[|\]/g, '');
+      const matchStringWithBrackets = `[${matchStringWithoutBrackets}]`;
+      mesageWithParams = `\x1b[38;5;82m${matchStringWithBrackets}\x1b[0m`;
+      message = message.replace(matchStringWithBrackets, '');
+      message = message.trim();
+    }
+
+    if (matchString.indexOf(message) !== 1) {
+      // acha [arrow] ou [ arrow ] e coloca o arrow, faç
+      const regexArrow = /\[\s*arrow\s*\]/i;
+      const matchArrow = message.match(regexArrow);
+      if (matchArrow !== null && matchArrow.length > 0) {
+        message = message.replace(matchArrow[0], handlerShowArrow(logType));
+      }
+    }
+  }
 
   if (somethingElse) {
     return console.log(
-      `${badge} ${highligh} \x1b[38;5;82m${handlerJsonStringify(
+      `${badge} ${mesageWithParams} ${arrow} \x1b[38;5;82m${handlerJsonStringify(
         message
       )} ${handlerJsonStringify(somethingElse)}\x1b[0m`
     );
   }
   return console.log(
-    `${badge} ${highligh} \x1b[38;5;82m${handlerJsonStringify(message)}\x1b[0m`
+    `${badge} ${mesageWithParams} ${arrow} \x1b[38;5;82m${handlerJsonStringify(
+      message
+    )}\x1b[0m`
   );
 };
 
 export const logError = (message: string, somethingElse?: any) => {
+  const logType = 'error';
   if (currentOptions.hideLogs === true) {
     return;
   }
-  const badge = handlerShowBadge('error');
-  const highligh = handlerShowHighligh('error');
+  const arrow = handlerShowArrow(logType);
+  const badge = handlerShowBadge(logType);
+  const highligh = handlerShowHighligh(logType);
+
+  let mesageWithParams = highligh;
+  const regex = /\[.*?\]/g;
+  const match = message.match(regex);
+
+  if (match !== null && match.length > 0) {
+    const matchString = match[0];
+
+    if (matchString.indexOf(message) === 0) {
+      const matchStringWithoutBrackets = matchString.replace(/\[|\]/g, '');
+      const matchStringWithBrackets = `[${matchStringWithoutBrackets}]`;
+      mesageWithParams = `\x1b[38;5;82m${matchStringWithBrackets}\x1b[0m`;
+      message = message.replace(matchStringWithBrackets, '');
+      message = message.trim();
+    }
+
+    if (matchString.indexOf(message) !== 1) {
+      // acha [arrow] ou [ arrow ] e coloca o arrow, faç
+      const regexArrow = /\[\s*arrow\s*\]/i;
+      const matchArrow = message.match(regexArrow);
+      if (matchArrow !== null && matchArrow.length > 0) {
+        message = message.replace(matchArrow[0], handlerShowArrow(logType));
+      }
+    }
+  }
 
   if (somethingElse) {
     return console.log(
-      `${badge} ${highligh} \x1b[38;5;196m${handlerJsonStringify(
+      `${badge} ${mesageWithParams} ${arrow} \x1b[38;5;196m${handlerJsonStringify(
         message
       )} ${handlerJsonStringify(somethingElse)}\x1b[0m`
     );
   }
   return console.log(
-    `${badge} ${highligh} \x1b[38;5;196m${handlerJsonStringify(message)}\x1b[0m`
+    `${badge} ${mesageWithParams} ${arrow} \x1b[38;5;196m${handlerJsonStringify(
+      message
+    )}\x1b[0m`
   );
 };
 
 export const logWarning = (message: string, somethingElse?: any) => {
+  const logType = 'warning';
+
   if (currentOptions.hideLogs === true) {
     return;
   }
-  const badge = handlerShowBadge('warning');
-  const highligh = handlerShowHighligh('warning');
+  const arrow = handlerShowArrow(logType);
+  const badge = handlerShowBadge(logType);
+  const highligh = handlerShowHighligh(logType);
+
+  let mesageWithParams = highligh;
+  const regex = /\[.*?\]/g;
+  const match = message.match(regex);
+
+  if (match !== null && match.length > 0) {
+    const matchString = match[0];
+
+    if (matchString.indexOf(message) === 0) {
+      const matchStringWithoutBrackets = matchString.replace(/\[|\]/g, '');
+      const matchStringWithBrackets = `[${matchStringWithoutBrackets}]`;
+      mesageWithParams = `\x1b[38;5;82m${matchStringWithBrackets}\x1b[0m`;
+      message = message.replace(matchStringWithBrackets, '');
+      message = message.trim();
+    }
+
+    if (matchString.indexOf(message) !== 1) {
+      // acha [arrow] ou [ arrow ] e coloca o arrow, faç
+      const regexArrow = /\[\s*arrow\s*\]/i;
+      const matchArrow = message.match(regexArrow);
+      if (matchArrow !== null && matchArrow.length > 0) {
+        message = message.replace(matchArrow[0], handlerShowArrow(logType));
+      }
+    }
+  }
 
   if (somethingElse) {
     return console.log(
-      `${badge} ${highligh} \x1b[38;5;226m${handlerJsonStringify(
+      `${badge} ${mesageWithParams} ${arrow} \x1b[38;5;226m${handlerJsonStringify(
         message
       )} ${handlerJsonStringify(somethingElse)}\x1b[0m`
     );
   }
   return console.log(
-    `${badge} ${highligh} \x1b[38;5;226m${handlerJsonStringify(message)}\x1b[0m`
+    `${badge} ${mesageWithParams} ${arrow} \x1b[38;5;226m${handlerJsonStringify(
+      message
+    )}\x1b[0m`
   );
 };
 
 export const logInfo = (message: string, somethingElse?: any) => {
+  const logType = 'error';
+
   if (currentOptions.hideLogs === true) {
     return;
   }
-  const badge = handlerShowBadge('info');
-  const highligh = handlerShowHighligh('info');
+  const arrow = handlerShowArrow(logType);
+  const badge = handlerShowBadge(logType);
+  const highligh = handlerShowHighligh(logType);
 
+  let mesageWithParams = highligh;
+  const regex = /\[.*?\]/g;
+  const match = message.match(regex);
+
+  if (match !== null && match.length > 0) {
+    const matchString = match[0];
+
+    if (matchString.indexOf(message) === 0) {
+      const matchStringWithoutBrackets = matchString.replace(/\[|\]/g, '');
+      const matchStringWithBrackets = `[${matchStringWithoutBrackets}]`;
+      mesageWithParams = `\x1b[38;5;82m${matchStringWithBrackets}\x1b[0m`;
+      message = message.replace(matchStringWithBrackets, '');
+      message = message.trim();
+    }
+
+    if (matchString.indexOf(message) !== 1) {
+      // acha [arrow] ou [ arrow ] e coloca o arrow, faç
+      const regexArrow = /\[\s*arrow\s*\]/i;
+      const matchArrow = message.match(regexArrow);
+      if (matchArrow !== null && matchArrow.length > 0) {
+        message = message.replace(matchArrow[0], handlerShowArrow(logType));
+      }
+    }
+  }
   if (somethingElse) {
     return console.log(
-      `${badge} ${highligh} \x1b[38;5;33m${handlerJsonStringify(
+      `${badge} ${mesageWithParams} ${arrow} \x1b[38;5;33m${handlerJsonStringify(
         message
       )} ${handlerJsonStringify(somethingElse)}\x1b[0m`
     );
   }
   return console.log(
-    `${badge} ${highligh} \x1b[38;5;33m${handlerJsonStringify(message)}\x1b[0m`
+    `${badge} ${mesageWithParams} ${arrow} \x1b[38;5;33m${handlerJsonStringify(
+      message
+    )}\x1b[0m`
   );
 };
 
 export const logDebug = (message: string, somethingElse?: any) => {
+  const logType = 'error';
+
   if (currentOptions.hideLogs === true) {
     return;
   }
-  const badge = handlerShowBadge('debug');
-  const highligh = handlerShowHighligh('debug');
+  const arrow = handlerShowArrow(logType);
+  const badge = handlerShowBadge(logType);
+  const highligh = handlerShowHighligh(logType);
 
+  let mesageWithParams = highligh;
+  const regex = /\[.*?\]/g;
+  const match = message.match(regex);
+
+  if (match !== null && match.length > 0) {
+    const matchString = match[0];
+
+    if (matchString.indexOf(message) === 0) {
+      const matchStringWithoutBrackets = matchString.replace(/\[|\]/g, '');
+      const matchStringWithBrackets = `[${matchStringWithoutBrackets}]`;
+      mesageWithParams = `\x1b[38;5;82m${matchStringWithBrackets}\x1b[0m`;
+      message = message.replace(matchStringWithBrackets, '');
+      message = message.trim();
+    }
+
+    if (matchString.indexOf(message) !== 1) {
+      // acha [arrow] ou [ arrow ] e coloca o arrow, faç
+      const regexArrow = /\[\s*arrow\s*\]/i;
+      const matchArrow = message.match(regexArrow);
+      if (matchArrow !== null && matchArrow.length > 0) {
+        message = message.replace(matchArrow[0], handlerShowArrow(logType));
+      }
+    }
+  }
   if (somethingElse) {
     return console.log(
-      `${badge} ${highligh} \x1b[38;5;201m${handlerJsonStringify(
+      `${badge} ${mesageWithParams} ${arrow} \x1b[38;5;201m${handlerJsonStringify(
         message
       )} ${handlerJsonStringify(somethingElse)}\x1b[0m`
     );
   }
   return console.log(
-    `${badge} ${highligh} \x1b[38;5;201m${handlerJsonStringify(message)}\x1b[0m`
+    `${badge} ${mesageWithParams} ${arrow} \x1b[38;5;201m${handlerJsonStringify(
+      message
+    )}\x1b[0m`
   );
 };
 
 export const log = (message: string, somethingElse?: any) => {
+  const logType = 'error';
+
   if (currentOptions.hideLogs === true) {
     return;
   }
-  const badge = handlerShowBadge('white');
-  const highligh = handlerShowHighligh('white');
+  const arrow = handlerShowArrow(logType);
+  const badge = handlerShowBadge(logType);
+  const highligh = handlerShowHighligh(logType);
+
+  let mesageWithParams = highligh;
+  const regex = /\[.*?\]/g;
+  const match = message.match(regex);
+
+  if (match !== null && match.length > 0) {
+    const matchString = match[0];
+
+    if (matchString.indexOf(message) === 0) {
+      const matchStringWithoutBrackets = matchString.replace(/\[|\]/g, '');
+      const matchStringWithBrackets = `[${matchStringWithoutBrackets}]`;
+      mesageWithParams = `\x1b[38;5;82m${matchStringWithBrackets}\x1b[0m`;
+      message = message.replace(matchStringWithBrackets, '');
+      message = message.trim();
+    }
+
+    if (matchString.indexOf(message) !== 1) {
+      // acha [arrow] ou [ arrow ] e coloca o arrow, faç
+      const regexArrow = /\[\s*arrow\s*\]/i;
+      const matchArrow = message.match(regexArrow);
+      if (matchArrow !== null && matchArrow.length > 0) {
+        message = message.replace(matchArrow[0], handlerShowArrow(logType));
+      }
+    }
+  }
 
   if (somethingElse) {
     return console.log(
-      `${badge} ${highligh} ${handlerJsonStringify(
+      `${badge} ${mesageWithParams} ${arrow} ${handlerJsonStringify(
         message
       )} ${handlerJsonStringify(somethingElse)}`
     );
   }
-  return console.log(`${badge} ${highligh} ${handlerJsonStringify(message)}`);
+  return console.log(
+    `${badge} ${mesageWithParams} ${arrow} ${handlerJsonStringify(message)}`
+  );
 };
